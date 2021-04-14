@@ -1,33 +1,27 @@
+const path = require('path');
+
 const express = require('express');
-const bodyParser = require('body-parser');
-// import bodyParser from 'body-parser';
+
+const adminRouter = require('./routes/admin');
+const shopRouter = require('./routes/shop');
 
 const app = express();
-//app.use(bodyParser.urlencoded({extended: false}));
 
-const urlencodedParser = bodyParser.urlencoded({extended: false});
-/* app.get('/', (req, res, next) => {
-    res.send('<h1>Hello from Express!</h1>')
-}); */
-app.use('/add-product', (req, res, next) => {
-    res.send('<form action="/product" method="POST"><input type="text" name="title" /><button type="submit">Add product</button>');
-});
-/* app.use('/product', (req, res, next) => {
-    console.log('=======', req.body );
-    res.redirect('/add-product');
-}); */
+// making public directory directly/statically accesible from client side thorgh url
+app.use(express.static(path.join(__dirname, 'public')));
 
-// post() and get() methods match exactly the url path, method. with use() method we need to maintain the order of the url registered.
-// But its still better to maintain the order.
-app.post('/product', urlencodedParser, (req, res, next) => {
-    console.log('=======', req.body );
-    res.redirect('/add-product');
-});
+
+//app.use(adminRouter);
+app.use('/admin', adminRouter);     // http://localhost:3000/admin/add-product
+app.use(shopRouter);
+
+
+// Adding 404 page, any request that is not caught by other routers end up here. This should be at the last.
 app.use('/', (req, res, next) => {
-    res.send('<h1>Hello from Express!</h1>')
+    // res.status(404).send('<h1>Page not found!</h1>');
+
+    // sending file instead of html
+    res.sendFile(path.join(__dirname, 'views', '404.html' ));
 });
-
-
-// const server = http.createServer(routes);
 
 app.listen(3000);
